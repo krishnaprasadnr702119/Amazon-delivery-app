@@ -15,7 +15,7 @@ class DatabaseHelper {
 
   Future<void> _initDatabase() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, 'amazon.db');
+    final path = join(databasesPath, 'amazontest.db');
 
     _database = await openDatabase(path, version: 1, onCreate: _createDb);
     print("Database initialized.");
@@ -32,18 +32,28 @@ class DatabaseHelper {
     ''');
   }
 
-  Future<void> saveUser(User user) async {
+  Future<void> saveUser(User user, {bool resetPassword = false}) async {
     await _initDatabase();
 
     if (_database != null) {
       print("Saving user: ${user.toMap()}");
 
-      // Use 'replace' to update an existing user with the same 'id'
-      await _database!.insert(
-        'users',
-        user.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      if (resetPassword) {
+        // If resetPassword is true, update the password for an existing user
+        await _database!.update(
+          'users',
+          user.toMap(),
+          where: 'email = ?',
+          whereArgs: [user.email],
+        );
+      } else {
+        // Use 'replace' to update an existing user with the same 'id'
+        await _database!.insert(
+          'users',
+          user.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
 
       print("User saved.");
     }
@@ -65,35 +75,6 @@ class DatabaseHelper {
         if (user.password == password) {
           return user;
         }
-      }
-    }
-
-    return null;
-  }
-
-  Future<void> saveForgetUser(User user) async {
-    await _initDatabase();
-
-    if (_database != null) {
-      print("Saving forgetUser: ${user.toMap()}");
-      await _database!.insert('forget_users', user.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace);
-      print("Forget user saved with ID: ${user.id}");
-    }
-  }
-
-  Future<User?> getForgetUserByEmail(String email) async {
-    await _initDatabase();
-
-    if (_database != null) {
-      final List<Map<String, dynamic>> result = await _database!.query(
-        'forget_users',
-        where: 'email = ?',
-        whereArgs: [email],
-      );
-
-      if (result.isNotEmpty) {
-        return User.fromMap(result.first);
       }
     }
 

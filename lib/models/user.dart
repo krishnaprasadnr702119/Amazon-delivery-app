@@ -1,21 +1,19 @@
-import 'package:uuid/uuid.dart';
-
 class User {
-  final int? id;
+  final String? id;
   final String username;
   final String email;
   final String password;
 
   User({
-    int? id,
+    this.id,
     required this.username,
     required this.email,
     required this.password,
-  }) : id = id ?? _generateUniqueId();
+  });
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id'] as int?,
+      id: map['id'] as String?,
       username: map['username'] as String,
       email: map['email'] as String,
       password: map['password'] as String,
@@ -32,7 +30,7 @@ class User {
   }
 
   User copyWith({
-    int? id,
+    String? id,
     String? username,
     String? email,
     String? password,
@@ -43,9 +41,5 @@ class User {
       email: email ?? this.email,
       password: password ?? this.password,
     );
-  }
-
-  static int _generateUniqueId() {
-    return int.parse(Uuid().v4().split('-').first, radix: 16);
   }
 }

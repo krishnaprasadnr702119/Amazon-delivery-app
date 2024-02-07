@@ -1,5 +1,6 @@
-import 'dart:async';
+// lib/forgetpassword/screen/bloc/forgetpassword_bloc.dart
 
+import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:task/data/database_helper.dart';
 import 'package:task/models/user.dart';
@@ -28,8 +29,8 @@ class ForgetPasswordBloc
         final updatedUser =
             existingUser.copyWith(password: event.user.password);
 
-        // Use the correct method to save the updated user
-        await _databaseHelper.saveUser(updatedUser);
+        // Use the correct method to save the updated user and reset the password
+        await _databaseHelper.saveUser(updatedUser, resetPassword: true);
 
         emit(ForgetPasswordSuccess());
       } else {
