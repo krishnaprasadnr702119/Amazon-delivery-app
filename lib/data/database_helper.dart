@@ -15,7 +15,7 @@ class DatabaseHelper {
 
   Future<void> _initDatabase() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, 'test.db');
+    final path = join(databasesPath, 'amazon.db');
 
     _database = await openDatabase(path, version: 1, onCreate: _createDb);
     print("Database initialized.");
