@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:task/task/bloc/bloc/crud_bloc.dart';
+import 'package:task/task/task.dart';
 import '../constants/constants.dart';
 import '../models/todo.dart';
 import '../widgets/custom_text.dart';
@@ -225,13 +226,21 @@ class _DetailsPageState extends State<DetailsPage> {
                                           .showSnackBar(const SnackBar(
                                         backgroundColor: Constants.primaryColor,
                                         duration: Duration(seconds: 1),
-                                        content: Text('task updated'),
+                                        content: Text('Task updated'),
                                       ));
-                                      Navigator.of(context)
-                                          .popUntil((route) => route.isFirst);
+
+                                      // Navigate to TaskPage after updating the task
+                                      Navigator.popUntil(
+                                          context, (route) => route.isFirst);
                                       context
                                           .read<CrudBloc>()
                                           .add(const FetchTodos());
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const TaskPage()),
+                                      );
                                     },
                                     child: const Text('Update'),
                                   ),

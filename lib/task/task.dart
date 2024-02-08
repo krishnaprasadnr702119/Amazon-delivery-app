@@ -23,7 +23,9 @@ class _TaskPageState extends State<TaskPage> {
         ),
         onPressed: () {
           Navigator.push(
-              context, MaterialPageRoute(builder: (c) => const AddTodoPage()));
+            context,
+            MaterialPageRoute(builder: (c) => const AddTodoPage()),
+          );
         },
       ),
       body: BlocBuilder<CrudBloc, CrudState>(
@@ -36,54 +38,61 @@ class _TaskPageState extends State<TaskPage> {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 height: MediaQuery.of(context).size.height,
-                child: Column(children: [
-                  Center(
-                    child: Text(
-                      'Add Task'.toUpperCase(),
-                      style: const TextStyle(fontSize: 16),
+                child: Column(
+                  children: [
+                    Center(
+                      child: Text(
+                        'Add Task'.toUpperCase(),
+                        style: const TextStyle(fontSize: 16),
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  state.todo.isNotEmpty
-                      ? Expanded(
-                          child: ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            padding: const EdgeInsets.all(8),
-                            itemCount: state.todo.length,
-                            itemBuilder: (context, i) {
-                              return GestureDetector(
-                                onTap: () {
-                                  context.read<CrudBloc>().add(
-                                      FetchSpecificTodo(id: state.todo[i].id!));
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: ((context) =>
-                                          const DetailsPage()),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 80,
-                                  margin: const EdgeInsets.only(bottom: 14),
-                                  child: Card(
-                                    elevation: 10,
-                                    color: Colors.blue,
-                                    child: Column(
-                                      children: [
-                                        ListTile(
-                                          title: Text(
-                                            state.todo[i].title.toUpperCase(),
-                                            style: const TextStyle(
+                    const SizedBox(height: 10),
+                    state.todo.isNotEmpty
+                        ? Expanded(
+                            child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              padding: const EdgeInsets.all(8),
+                              itemCount: state.todo.length,
+                              itemBuilder: (context, i) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    context.read<CrudBloc>().add(
+                                        FetchSpecificTodo(
+                                            id: state.todo[i].id!));
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: ((context) =>
+                                            const DetailsPage()),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 80,
+                                    margin: const EdgeInsets.only(bottom: 14),
+                                    child: Card(
+                                      elevation: 10,
+                                      color: Colors.blue,
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            title: Text(
+                                              state.todo[i].title.toUpperCase(),
+                                              style: const TextStyle(
                                                 color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          trailing: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              'Status: ${state.todo[i].status}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            trailing: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
                                                   onPressed: () {
                                                     context
                                                         .read<CrudBloc>()
@@ -93,30 +102,33 @@ class _TaskPageState extends State<TaskPage> {
                                                     ScaffoldMessenger.of(
                                                             context)
                                                         .showSnackBar(
-                                                            const SnackBar(
-                                                      duration: Duration(
-                                                          milliseconds: 500),
-                                                      content:
-                                                          Text("deleted todo"),
-                                                    ));
+                                                      const SnackBar(
+                                                        duration: Duration(
+                                                            milliseconds: 500),
+                                                        content: Text(
+                                                            "Deleted todo"),
+                                                      ),
+                                                    );
                                                   },
                                                   icon: const Icon(
                                                     Icons.delete,
                                                     color: Colors.red,
-                                                  ))
-                                            ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      : const Text(''),
-                ]),
+                                );
+                              },
+                            ),
+                          )
+                        : const Text(''),
+                  ],
+                ),
               ),
             );
           }

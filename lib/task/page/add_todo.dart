@@ -13,13 +13,7 @@ class AddTodoPage extends StatefulWidget {
 class _AddTodoPageState extends State<AddTodoPage> {
   final TextEditingController _title = TextEditingController();
   final TextEditingController _description = TextEditingController();
-  String selectedStatus = 'Pending'; // Default status
-  final List<String> statusOptions = [
-    'Completed',
-    'Started',
-    'Paused',
-    'Pending'
-  ];
+  String selectedStatus = 'Pending';
 
   @override
   Widget build(BuildContext context) {
@@ -43,20 +37,6 @@ class _AddTodoPageState extends State<AddTodoPage> {
               CustomText(text: 'location'.toUpperCase()),
               TextFormField(controller: _description),
               CustomText(text: 'Status'.toUpperCase()),
-              DropdownButton<String>(
-                value: selectedStatus,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedStatus = newValue!;
-                  });
-                },
-                items: statusOptions.map((status) {
-                  return DropdownMenuItem<String>(
-                    value: status,
-                    child: Text(status),
-                  );
-                }).toList(),
-              ),
               BlocBuilder<CrudBloc, CrudState>(
                 builder: (context, state) {
                   return ElevatedButton(
