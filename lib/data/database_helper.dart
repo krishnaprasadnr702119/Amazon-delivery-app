@@ -1,45 +1,59 @@
-// database_helper.dart
-
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:task/models/user.dart';
+import 'package:task/task/models/todo.dart';
 
-class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
+class AppDatabase {
+  static final AppDatabase _instance = AppDatabase._internal();
 
-  factory DatabaseHelper() => _instance;
+  factory AppDatabase() => _instance;
 
-  DatabaseHelper._internal();
+  AppDatabase._internal();
 
   Database? _database;
 
-  Future<void> _initDatabase() async {
+  Future<void> initDatabase() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, 'amazontest.db');
+    final path = join(databasesPath, 'tasknew.db');
 
-    _database = await openDatabase(path, version: 1, onCreate: _createDb);
+    _database = await openDatabase(path, version: 2, onCreate: _createDb);
     print("Database initialized.");
   }
 
   Future<void> _createDb(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE users (
-        id TEXT PRIMARY KEY, 
-        username TEXT,
-        email TEXT,
-        password TEXT
-      )
-    ''');
+    try {
+      await db.execute('''
+        CREATE TABLE users (
+          id TEXT PRIMARY KEY, 
+          username TEXT,
+          email TEXT,
+          password TEXT
+        )
+      ''');
+
+      await db.execute('''
+    CREATE TABLE todos ( 
+    _id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    isImportant BOOLEAN NOT NULL,
+    number INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    time TEXT NOT NULL,
+    status TEXT NOT NULL  -- Add status field
+  )
+''');
+    } catch (e) {
+      print('Error creating database tables: $e');
+    }
   }
 
   Future<void> saveUser(User user, {bool resetPassword = false}) async {
-    await _initDatabase();
+    await initDatabase();
 
     if (_database != null) {
       print("Saving user: ${user.toMap()}");
 
       if (resetPassword) {
-        // If resetPassword is true, update the password for an existing user
         await _database!.update(
           'users',
           user.toMap(),
@@ -47,7 +61,6 @@ class DatabaseHelper {
           whereArgs: [user.email],
         );
       } else {
-        // Use 'replace' to update an existing user with the same 'id'
         await _database!.insert(
           'users',
           user.toMap(),
@@ -60,7 +73,7 @@ class DatabaseHelper {
   }
 
   Future<User?> getUser(String username, String password) async {
-    await _initDatabase();
+    await initDatabase();
     if (_database != null) {
       final List<Map<String, dynamic>> result = await _database!.query(
         'users',
@@ -71,7 +84,6 @@ class DatabaseHelper {
       if (result.isNotEmpty) {
         final User user = User.fromMap(result.first);
 
-        // Validate the password here
         if (user.password == password) {
           return user;
         }
@@ -82,7 +94,7 @@ class DatabaseHelper {
   }
 
   Future<User?> getUserByEmail(String email) async {
-    await _initDatabase();
+    await initDatabase();
 
     if (_database != null) {
       final List<Map<String, dynamic>> result = await _database!.query(
@@ -97,5 +109,71 @@ class DatabaseHelper {
     }
 
     return null;
+  }
+
+  Future<Todo> create(Todo todo) async {
+    final db = await _database;
+    final id = await db!.insert(todoTable, todo.toJson());
+
+    return todo.copyWith(id: id, status: todo.status);
+  }
+
+  Future<Todo> readTodo({required int id}) async {
+    final db = await _database;
+
+    final maps = await db!.query(
+      todoTable,
+      columns: TodoFields.values,
+      where: '${TodoFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Todo.fromJson(maps.first);
+    } else {
+      throw Exception('ID $id not found');
+    }
+  }
+
+  Future<List<Todo>> readAllTodos() async {
+    final db = await _database;
+    const orderBy = '${TodoFields.time} ASC';
+    final result = await db!.query(todoTable, orderBy: orderBy);
+
+    return result.map((json) => Todo.fromJson(json)).toList();
+  }
+
+  Future<int> update({required Todo todo}) async {
+    final db = await _database;
+
+    return db!.update(
+      todoTable,
+      {
+        TodoFields.title: todo.title,
+        TodoFields.isImportant: todo.isImportant ? 1 : 0,
+        TodoFields.number: todo.number,
+        TodoFields.description: todo.description,
+        TodoFields.time: todo.createdTime.toIso8601String(),
+        TodoFields.status: todo.status,
+      },
+      where: '${TodoFields.id} = ?',
+      whereArgs: [todo.id],
+    );
+  }
+
+  Future<int> delete({required int id}) async {
+    final db = await _database;
+
+    return await db!.delete(
+      todoTable,
+      where: '${TodoFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future close() async {
+    final db = await _database;
+
+    db!.close();
   }
 }

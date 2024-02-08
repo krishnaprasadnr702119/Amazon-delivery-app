@@ -11,12 +11,12 @@ part 'login_event.dart';
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final AppDatabase _appDatabase = AppDatabase();
 
   LoginBloc() : super(LoginInitial()) {
     on<LoginSubmitted>((event, emit) async {
       try {
-        final user = await _databaseHelper.getUser(
+        final user = await _appDatabase.getUser(
           event.credentials.username,
           event.credentials.password,
         );

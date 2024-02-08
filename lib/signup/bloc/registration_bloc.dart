@@ -8,12 +8,12 @@ part 'registration_event.dart';
 part 'registration_state.dart';
 
 class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
-  final _databaseHelper = DatabaseHelper();
+  final _appDatabase = AppDatabase();
 
   RegistrationBloc() : super(RegistrationInitial()) {
     on<RegistrationSubmitted>((event, emit) async {
       try {
-        await _databaseHelper.saveUser(event.user);
+        await _appDatabase.saveUser(event.user);
         emit(RegistrationSuccess());
       } catch (e) {
         emit(RegistrationFailure(error: e.toString()));

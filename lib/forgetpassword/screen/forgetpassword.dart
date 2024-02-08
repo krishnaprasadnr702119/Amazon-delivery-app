@@ -17,7 +17,7 @@ class ForgetPasswordForm extends StatelessWidget {
         BlocProvider.of<ForgetPasswordBloc>(context);
 
     return Scaffold(
-      backgroundColor: Colors.yellow[200],
+      backgroundColor: Colors.grey[200],
       body: SingleChildScrollView(
         child: BlocListener<ForgetPasswordBloc, ForgetPasswordState>(
           listener: (context, state) {

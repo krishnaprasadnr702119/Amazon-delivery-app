@@ -1,12 +1,10 @@
-// login_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task/forgetpassword/screen/forgetpassword.dart';
 import 'package:task/login/models/login_helper.dart';
 import 'package:task/login/bloc/login_bloc.dart';
-import 'package:task/homepage/screen/homepage.dart';
 import 'package:task/signup/screen/registration.dart';
+import 'package:task/task/task.dart';
 
 class LoginPage extends StatelessWidget {
   final _usernameController = TextEditingController();
@@ -37,8 +35,7 @@ class LoginPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          HomePage(username: state.user.username),
+                      builder: (context) => TaskPage(),
                     ),
                   );
                 } else if (state is LoginFailure) {

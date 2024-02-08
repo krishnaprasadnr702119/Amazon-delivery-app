@@ -10,7 +10,7 @@ part 'forgetpassword_state.dart';
 
 class ForgetPasswordBloc
     extends Bloc<ForgetPasswordEvent, ForgetPasswordState> {
-  final _databaseHelper = DatabaseHelper();
+  final _appDatabase = AppDatabase();
 
   ForgetPasswordBloc() : super(ForgetPasswordInitial()) {
     on<ForgetPasswordSubmitted>(_mapForgetPasswordSubmittedToState);
@@ -21,8 +21,7 @@ class ForgetPasswordBloc
     Emitter<ForgetPasswordState> emit,
   ) async {
     try {
-      final existingUser =
-          await _databaseHelper.getUserByEmail(event.user.email);
+      final existingUser = await _appDatabase.getUserByEmail(event.user.email);
 
       if (existingUser != null) {
         // User exists, update the password
@@ -30,7 +29,7 @@ class ForgetPasswordBloc
             existingUser.copyWith(password: event.user.password);
 
         // Use the correct method to save the updated user and reset the password
-        await _databaseHelper.saveUser(updatedUser, resetPassword: true);
+        await _appDatabase.saveUser(updatedUser, resetPassword: true);
 
         emit(ForgetPasswordSuccess());
       } else {
