@@ -1,21 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task/models/user.dart';
 import 'package:task/task/bloc/bloc/crud_bloc.dart';
 import 'package:task/task/page/add_todo.dart';
 import 'package:task/task/page/details_page.dart';
 
-class TaskPage extends StatefulWidget {
-  const TaskPage({Key? key}) : super(key: key);
+class TaskPage extends StatelessWidget {
+  final User? user;
 
-  @override
-  State<TaskPage> createState() => _TaskPageState();
-}
+  const TaskPage({Key? key, this.user}) : super(key: key);
 
-class _TaskPageState extends State<TaskPage> {
+  Color getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return Colors.green; // Change color for completed tasks
+      case 'started':
+        return Colors.orange; // Change color for started tasks
+      case 'paused':
+        return Colors.yellow; // Change color for paused tasks
+      case 'pending':
+      default:
+        return Colors.blue; // Default color
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('Delivery'),
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(user?.username ?? ''),
+              accountEmail: Text(user?.email ?? ''),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(user?.username.substring(0, 1) ?? ''),
+              ),
+            ),
+            ListTile(
+              title: Text('Task 1'),
+              onTap: () {
+                // Handle task 1 action
+              },
+            ),
+            ListTile(
+              title: Text('Task 2'),
+              onTap: () {
+                // Handle task 2 action
+              },
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(
           Icons.add,
@@ -54,11 +94,12 @@ class _TaskPageState extends State<TaskPage> {
                               padding: const EdgeInsets.all(8),
                               itemCount: state.todo.length,
                               itemBuilder: (context, i) {
+                                final task = state.todo[i];
                                 return GestureDetector(
                                   onTap: () {
-                                    context.read<CrudBloc>().add(
-                                        FetchSpecificTodo(
-                                            id: state.todo[i].id!));
+                                    context
+                                        .read<CrudBloc>()
+                                        .add(FetchSpecificTodo(id: task.id!));
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -72,19 +113,19 @@ class _TaskPageState extends State<TaskPage> {
                                     margin: const EdgeInsets.only(bottom: 14),
                                     child: Card(
                                       elevation: 10,
-                                      color: Colors.blue,
+                                      color: getStatusColor(task.status),
                                       child: Column(
                                         children: [
                                           ListTile(
                                             title: Text(
-                                              state.todo[i].title.toUpperCase(),
+                                              task.title.toUpperCase(),
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             subtitle: Text(
-                                              'Status: ${state.todo[i].status}',
+                                              'Status: ${task.status}',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                               ),
@@ -97,8 +138,7 @@ class _TaskPageState extends State<TaskPage> {
                                                     context
                                                         .read<CrudBloc>()
                                                         .add(DeleteTodo(
-                                                            id: state
-                                                                .todo[i].id!));
+                                                            id: task.id!));
                                                     ScaffoldMessenger.of(
                                                             context)
                                                         .showSnackBar(
